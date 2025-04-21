@@ -1,0 +1,116 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos - Borges</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-300 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="py-6 px-4 sm:px-8 w-full">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <a href="index.html" class="text-lg font-bold text-white">Borges</a>
+      <nav>
+        <a href="projects.html" class="text-gray-400 hover:text-white transition mr-4">Projetos</a>
+        <a href="blog.html" class="text-gray-400 hover:text-white transition mr-4">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex items-center justify-center px-4 sm:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <!-- Projects Section -->
+      <section>
+        <h1 class="text-3xl font-bold text-white mb-4">Projetos</h1>
+        <ul class="text-gray-400 space-y-4">
+          <li>
+            <span class="font-semibold">From Downtown:</span> Análise de arremessos de 3 pontos na NBA, com visualizações em Python e Power BI. 
+            <a href="#" class="text-gray-500 hover:text-white transition">Ver mais</a>
+          </li>
+          <li>
+            <span class="font-semibold">Logistics Performance Analytics:</span> Projeto de automação e análise de dados logísticos, usando SQL e Python. 
+            <a href="#" class="text-gray-500 hover:text-white transition">Ver mais</a>
+          </li>
+          <li>
+            <span class="font-semibold">E-commerce Dashboard:</span> Pipeline ETL e análise RFM com visualizações interativas em Streamlit. 
+            <a href="#" class="text-gray-500 hover:text-white transition">Ver mais</a>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-6 px-4 sm:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="flex justify-center space-x-6 mb-2">
+        <!-- GitHub Icon -->
+        <a href="https://github.com/borgesip" class="text-gray-500 hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.332-1.754-1.332-1.754-1.087-.744.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.834 2.809 1.304 3.495.998.108-.776.417-1.304.76-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.3 24 12 24 5.37 18.63 0 12 0z"/>
+          </svg>
+        </a>
+        <!-- LinkedIn Icon -->
+        <a href="#" class="text-gray-500 hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V10h3v9zm-1.5-10.5c-.966 0-1.75-.784-1.75-1.75S5.534 5 6.5 5s1.75.784 1.75 1.75-.784 1.75-1.75 1.75zM19 19h-3v-4.5c0-1.104-.896-2-2-2s-2 .896-2 2V19h-3V10h3v1.5c.465-.627 1.287-1.5 2.5-1.5 2.485 0 3.5 1.642 3.5 3.75V19z"/>
+          </svg>
+        </a>
+        <!-- Email Icon -->
+        <a href="mailto:seuemail@exemplo.com" class="text-gray-500 hover:text-white transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12.713l-11.985-8.99C.072 3.52 0 3.27 0 3s.072-.52.215-.713L12 11.287l11.785-8.99c.143.193.215.443.215.713s-.072.52-.215.713L12 12.713zM0 5.287v13.426C0 20.527 1.473 22 3.287 22h17.426C22.527 22 24 20.527 24 18.713V5.287L12 14.287 0 5.287z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="text-gray-500 text-sm">© 2025 Borges</p>
+    </div>
+  </footer>
+</body>
+</html>
